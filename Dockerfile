@@ -12,11 +12,11 @@ RUN pip install -r requirements.txt
 
 COPY bot.py *.json *.pickle /bot/
 COPY config config
-COPY modules modules
 
 VOLUME /bot/config
 RUN useradd -m HomeBot && chown HomeBot -R /bot && apt install curl jq -y
 USER HomeBot
 WORKDIR /bot
+COPY modules modules
 
 CMD [ "python", "-u", "./bot.py" ]
