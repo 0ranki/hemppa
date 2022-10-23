@@ -15,5 +15,8 @@ COPY config config
 COPY modules modules
 
 VOLUME /bot/config
+RUN useradd -m HomeBot && chown HomeBot -R /bot && apt install curl jq -y
+USER HomeBot
+WORKDIR /bot
 
 CMD [ "python", "-u", "./bot.py" ]
