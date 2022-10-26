@@ -52,24 +52,31 @@ class MatrixModule(BotModule):
                 await bot.send_text(room, f"Motion URL is currently {self.motionurl}")
 
         else:
-            recvd_camid = 1
+            cmdindex = 1
             try:
                 # Check if first argument is numeric (camera id)
                 camid = int(args[0])
                 camid = str(camid)
             except ValueError:
-                recvd_camid = 0
+                cmdindex = 0
                 camid = '0'
-            if args[recvd_camid] not in self.allowed_cmds: 
+            if args[cmdindex] not in self.allowed_cmds: 
                 await bot.send_text(room, f'Unknown category: "{args[1]}"', event)
                 return
-            category = args[recvd_camid]
-            recvd_camid = recvd_camid + 1
-            if args[recvd_camid] not in self.allowed_cmds[category]:
-                await bot.send_text(room, f'Unknown command: "{args[recvd_camid]}"', event)
+            category = args[cmdindex]
+            cmdindex = cmdindex + 1
+            if args[cmdindex] not in self.allowed_cmds[category]:
+                await bot.send_text(room, f'Unknown command: "{args[cmdindex]}"', event)
                 return
-            command = args[recvd_camid]
+            command = args[cmdindex]
             req_url = f'{self.motionurl}/{camid}/{category}/{command}'
+            if category == 'config' and command == 'get':
+                queryparam = args[cmdindex + 1]
+                req_url = f'{req_url}?query={queryparam}'
+            elif category == 'config' and command == 'set':
+                param = args[cmdindex + 1]
+                value = args[cmdindex + 2]
+                req_url = f'{req_url}?{param}={value}'
             resp = requests.get(req_url).text
             await bot.send_text(room, resp, event)
 
