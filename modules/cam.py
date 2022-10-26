@@ -6,12 +6,13 @@ import requests
 class MatrixModule(BotModule):
     def __init__(self,name):
         super().__init__(name)
-        self.motionurl = 'http://192.168.1.220:8080'
+        self.motionurl = 'http://localhost:8080'
         self.allowed_cmds = {
                             'config': ['list','set','get','write'],
                             'detection': ['status','connection','start','pause'], 
                             'action': ['eventstart','eventend','snapshot','restart','quit','end']
                             }
+        self.restricted_cmds = ['list','set','get','write','start','pause','restart','quit','end']
         self.helptext = """Control the motion daemon.
         Available commands:
         - config list|set|get|write
@@ -60,16 +61,23 @@ class MatrixModule(BotModule):
             except ValueError:
                 cmdindex = 0
                 camid = '0'
-            if args[cmdindex] not in self.allowed_cmds: 
+            category = args[cmdindex]
+            ## Quick commands start
+            if category == 'now':
+                await self.get_snapshot(camid, bot, room, event)
+                return
+            ## Quick commands end
+            if category not in self.allowed_cmds: 
                 await bot.send_text(room, f'Unknown category: "{args[1]}"', event)
                 return
-            category = args[cmdindex]
             cmdindex = cmdindex + 1
             if args[cmdindex] not in self.allowed_cmds[category]:
                 await bot.send_text(room, f'Unknown command: "{args[cmdindex]}"', event)
                 return
             command = args[cmdindex]
             req_url = f'{self.motionurl}/{camid}/{category}/{command}'
+            if command in self.restricted_cmds:
+                bot.must_be_owner(event)
             if category == 'config' and command == 'get':
                 queryparam = args[cmdindex + 1]
                 req_url = f'{req_url}?query={queryparam}'
@@ -77,8 +85,15 @@ class MatrixModule(BotModule):
                 param = args[cmdindex + 1]
                 value = args[cmdindex + 2]
                 req_url = f'{req_url}?{param}={value}'
+            if camid != 0 and command == 'snapshot':
+                await self.get_snapshot(camid, bot, room, event)
             resp = requests.get(req_url).text
             await bot.send_text(room, resp, event)
+
+    async def get_snapshot(self, camid, bot, room, event):
+        imgurl = f"{self.motionurl.replace(':8080',':8081')}/{camid}/current"
+        self.logger.info(f"Fetching image from {imgurl}")
+        await bot.upload_and_send_image(room, imgurl, event)
 
     def help(self):
         return self.helptext.splitlines()[0]
