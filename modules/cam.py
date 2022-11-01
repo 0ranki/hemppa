@@ -93,7 +93,7 @@ class MatrixModule(BotModule):
     async def get_snapshot(self, camid, bot, room, event):
         imgurl = f"{self.motionurl.replace(':8080',':8081')}/{camid}/current"
         self.logger.info(f"Fetching image from {imgurl}")
-        await bot.upload_and_send_image(room, imgurl, event)
+        await bot.upload_and_send_image(room, imgurl, event, no_cache=True)
 
     def help(self):
         return self.helptext.splitlines()[0]
