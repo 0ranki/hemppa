@@ -7,6 +7,7 @@ class MatrixModule(BotModule):
     def __init__(self,name):
         super().__init__(name)
         self.motionurl = 'http://localhost:8080'
+        self.cameras = []
         self.allowed_cmds = {
                             'config': ['list','set','get','write'],
                             'detection': ['status','connection','start','pause'], 
@@ -28,12 +29,15 @@ class MatrixModule(BotModule):
     def get_settings(self):
         data = super().get_settings()
         data['motionurl'] = self.motionurl
+        data['cameras'] = self.cameras
         return data
 
     def set_settings(self, data):
         super().set_settings(data)
         if data.get('motionurl'):
             self.motionurl = data['motionurl']
+        if data.get('cameras'):
+            self.cameras = data['cameras']
 
     async def matrix_message(self, bot, room, event):
         args = event.body.split()
@@ -51,6 +55,23 @@ class MatrixModule(BotModule):
                 await bot.send_text(room, f"Motion API URL set to {self.motionurl}")
             elif args[1] == 'get':
                 await bot.send_text(room, f"Motion URL is currently {self.motionurl}")
+
+        elif args[0] == 'cameras':
+            if args[1] == 'set':
+                bot.must_be_owner(event)
+                self.cameras = args[2:]
+                bot.save_settings()
+                await bot.send_text(room, "Updated camera id list")
+            elif args[1] == 'get':
+                camstr = ''
+                if len(self.cameras) == 0:
+                    await bot.send_text(room, "No camera ids configured")
+                else:
+                    for n, cam in enumerate(self.cameras):
+                        camstr = camstr + cam
+                        if n < len(self.cameras) - 1:
+                            camstr = camstr + ","
+                    await bot.send_text(room, f"Following camera ids are configured:\n{camstr}")
 
         else:
             cmdindex = 1
