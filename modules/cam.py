@@ -52,26 +52,26 @@ class MatrixModule(BotModule):
                 bot.must_be_owner(event)
                 self.motionurl = newurl
                 bot.save_settings()
-                await bot.send_text(room, f"Motion API URL set to {self.motionurl}")
+                await bot.send_text(room, f"Motion API URL set to {self.motionurl}", event)
             elif args[1] == 'get':
-                await bot.send_text(room, f"Motion URL is currently {self.motionurl}")
+                await bot.send_text(room, f"Motion URL is currently {self.motionurl}", event)
 
         elif args[0] == 'cameras':
             if args[1] == 'set':
                 bot.must_be_owner(event)
                 self.cameras = args[2:]
                 bot.save_settings()
-                await bot.send_text(room, "Updated camera id list")
+                await bot.send_text(room, "Updated camera id list", event)
             elif args[1] == 'get':
                 camstr = ''
                 if len(self.cameras) == 0:
-                    await bot.send_text(room, "No camera ids configured")
+                    await bot.send_text(room, "No camera ids configured", event)
                 else:
                     for n, cam in enumerate(self.cameras):
                         camstr = camstr + cam
                         if n < len(self.cameras) - 1:
                             camstr = camstr + ","
-                    await bot.send_text(room, f"Following camera ids are configured:\n{camstr}")
+                    await bot.send_text(room, f"Following camera ids are configured:\n{camstr}", event)
 
         else:
             cmdindex = 1
@@ -85,7 +85,14 @@ class MatrixModule(BotModule):
             category = args[cmdindex]
             ## Quick commands start
             if category == 'now':
-                await self.get_snapshot(camid, bot, room, event)
+                if camid != '0':
+                    await self.get_snapshot(camid, bot, room, event)
+                elif camid == '0' and len(self.cameras) > 0:
+                    for cam in self.cameras:
+                        await self.get_snapshot(cam, bot, room, event)
+                else:
+                    self.logger.info("User requested snapshots with id 0, but no camera id list configured")
+                    await bot.send_text(room, "No camera ids configured", event)
                 return
             ## Quick commands end
             if category not in self.allowed_cmds: 
