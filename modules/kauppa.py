@@ -16,4 +16,4 @@ class MatrixModule(BotModule):
         await bot.send_text(room, "\n".join(mdlist), event)
 
     def help(self):
-        return 'Formats the list given as arguments to a Markdown list'
+        return 'Formats the list given as arguments to a Markdown checkbox list'
