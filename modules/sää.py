@@ -23,15 +23,21 @@ class MatrixModule(BotModule):
         elif weather['winddir'] >= 293 and weather['winddir'] < 338:
             winddir = 'luoteesta'
 
-        weathermsg = f"""\
-        Lämpötila on tällä hetkellä {weather['tempnow']} astetta.
+        time = weather['timestamp'].split()[1]
 
-        Ilmankosteus on {weather['humidity']}% ja sadetta on odotettavissa
-        seuraavan tunnin aikana {weather['precipitation1h']}mm
-        ja tulevan vuorokauden aikana {weather['precipitation1d']}mm.
+        weathermsg = f"""Sää klo {time}:
+
+        Lämpötila on tällä hetkellä {weather['tempnow']} astetta.
+        Tulevan vuorokauden alin lämpötila on {weather['templo']} astetta
+        ja ylin {weather['temphi']} astetta.
+
+        Ilmankosteus on {weather['humidity']}%.
         
-        Tuuli puhaltaa {winddir} nopeudella {weather['windspeed']}m/s, voimakkuus
-        puuskissa on {weather['windspeedmax']}m/s"""
+        Kuluneen tunnin sademäärä on {weather['precipitation1h']}mm
+        ja kuluneen vuorokauden {weather['precipitation1d']}mm.
+        
+        Tuuli puhaltaa {winddir} nopeudella {weather['windspeed']}m/s
+        voimakkuus puuskissa on {weather['windspeedmax']}m/s"""
 
         await bot.send_text(room, weathermsg, event)
 
