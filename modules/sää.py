@@ -27,17 +27,11 @@ class MatrixModule(BotModule):
 
         weathermsg = f"""Sää klo {time}:
 
-        Lämpötila on tällä hetkellä {weather['tempnow']} astetta.
-        Tulevan vuorokauden alin lämpötila on {weather['templo']} astetta
-        ja ylin {weather['temphi']} astetta.
+Lämpötila on tällä hetkellä {weather['tempnow']} astetta. Tulevan vuorokauden ylin lämpötila on {weather['templo']} astetta ja alin {weather['temphi']} astetta.
 
-        Ilmankosteus on {weather['humidity']}%.
-        
-        Kuluneen tunnin sademäärä on {weather['precipitation1h']}mm
-        ja kuluneen vuorokauden {weather['precipitation1d']}mm.
-        
-        Tuuli puhaltaa {winddir} nopeudella {weather['windspeed']}m/s
-        voimakkuus puuskissa on {weather['windspeedmax']}m/s"""
+Ilmankosteus on {weather['humidity']}%. Kuluneen tunnin sademäärä on {weather['precipitation1h']}mm ja kuluneen vuorokauden {weather['precipitation1d']}mm.
+
+Tuuli puhaltaa {winddir} nopeudella {weather['windspeed']}m/s, voimakkuus puuskissa on {weather['windspeedmax']}m/s"""
 
         await bot.send_text(room, weathermsg, event)
 
