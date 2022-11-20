@@ -9,6 +9,7 @@ RUN pip install pipenv && \
     pip install pipfile-requirements
 RUN pipfile2req Pipfile > requirements.txt
 RUN pip install -r requirements.txt
+RUN pip install nordpool
 
 COPY bot.py *.json *.pickle /bot/
 COPY config config
